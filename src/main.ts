@@ -82,7 +82,8 @@ export async function run() {
 function resolveVersionInput(): string {
   let version = core.getInput('node-version');
   const versionFileInput = core.getInput('node-version-file');
-
+  core.info('checking the value of node-version-file');
+  core.info(versionFileInput);
   if (version && versionFileInput) {
     core.warning(
       'Both node-version and node-version-file inputs are specified, only node-version will be used'
