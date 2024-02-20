@@ -78,7 +78,9 @@ export async function run() {
     core.setFailed((err as Error).message);
   }
 }
-
+const versionFileInput = core.getInput('node-version-file');
+core.info('checking the value of node-version-file');
+core.info(versionFileInput);
 function resolveVersionInput(): string {
   let version = core.getInput('node-version');
   const versionFileInput = core.getInput('node-version-file');
