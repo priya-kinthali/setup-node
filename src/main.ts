@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 
 import os from 'os';
+import fs from 'fs';
 
 import * as auth from './authutil';
 import * as path from 'path';
@@ -63,10 +64,20 @@ export async function run() {
       auth.configAuthentication(registryUrl, alwaysAuth);
     }
 
-    if (cache && isCacheFeatureAvailable()) {
-      core.saveState(State.CachePackageManager, cache);
+    const packageManagerFromManifest = getNameFromPackageManagerField();
+    if (
+      cache !== '' &&
+      isCacheFeatureAvailable() &&
+      (cache !== undefined || packageManagerFromManifest)
+    ) {
       const cacheDependencyPath = core.getInput('cache-dependency-path');
-      await restoreCache(cache, cacheDependencyPath);
+      const packageManager =
+        cache !== undefined ? cache : packageManagerFromManifest;
+      if (!packageManager) {
+        return;
+      }
+      core.saveState(State.CachePackageManager, packageManager);
+      await restoreCache(packageManager, cacheDependencyPath);
     }
 
     const matchersPath = path.join(__dirname, '../..', '.github');
@@ -116,4 +127,24 @@ function resolveVersionInput(): string {
   }
 
   return version;
+}
+
+export function getNameFromPackageManagerField(): string | undefined {
+  // Check devEngines.packageManager and packageManager field in package.json
+  try {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+    return (
+      packageJson.devEngines?.packageManager?.name ||
+      (() => {
+        const pm = packageJson.packageManager;
+        if (typeof pm === 'string') {
+          const match = pm.match(/^(?:\^)?(npm|yarn|pnpm)@/);
+          return match ? match[1] : undefined;
+        }
+        return undefined;
+      })()
+    );
+  } catch (err) {
+    return undefined;
+  }
 }
