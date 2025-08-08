@@ -74,7 +74,6 @@ export async function run() {
       const packageManager =
         cache !== undefined ? cache : packageManagerFromManifest;
       if (!packageManager) {
-        // This should NOT happen due to your if, but this satisfies TypeScript.
         return;
       }
       core.saveState(State.CachePackageManager, packageManager);
@@ -131,10 +130,21 @@ function resolveVersionInput(): string {
 }
 
 export function getNameFromPackageManagerField(): string | undefined {
-  // Check devEngines.packageManager first
-  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
-  return (
-    packageJson.devEngines?.packageManager?.name ||
-    packageJson.packageManager?.replace(/^[^a-zA-Z0-9]+/, '').split('@')[0]
-  );
+  // Check devEngines.packageManager and packageManager field in package.json
+  try {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+    return (
+      packageJson.devEngines?.packageManager?.name ||
+      (() => {
+        const pm = packageJson.packageManager;
+        if (typeof pm === 'string') {
+          const match = pm.match(/^(?:\^)?(npm|yarn|pnpm)@/);
+          return match ? match[1] : undefined;
+        }
+        return undefined;
+      })()
+    );
+  } catch (err) {
+    return undefined;
+  }
 }
