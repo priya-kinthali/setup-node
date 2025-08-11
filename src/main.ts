@@ -65,6 +65,10 @@ export async function run() {
     }
 
     const packageManagerFromManifest = getNameFromPackageManagerField();
+    core.info(
+      `Value of packageManagerFromManifest: ${packageManagerFromManifest}`
+    );
+    core.info(`Value of cache: ${cache}`);
     if (
       cache !== '' &&
       isCacheFeatureAvailable() &&
@@ -73,6 +77,7 @@ export async function run() {
       const cacheDependencyPath = core.getInput('cache-dependency-path');
       const packageManager =
         cache !== undefined ? cache : packageManagerFromManifest;
+      core.info(`Value of packageManager: ${packageManager}`);
       if (!packageManager) {
         return;
       }
