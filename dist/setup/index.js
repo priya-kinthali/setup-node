@@ -99640,9 +99640,11 @@ function run() {
             const packageManagerFromManifest = getNameFromPackageManagerField();
             core.info(`Value of packageManagerFromManifest: ${packageManagerFromManifest}`);
             core.info(`Value of cache: ${cache}`);
-            if (cache !== '' &&
+            const isCacheDisabled = cache === ''; // Explicitly disable caching if cache is an empty string
+            const isCacheEnabled = cache === undefined && packageManagerFromManifest;
+            if (!isCacheDisabled &&
                 (0, cache_utils_1.isCacheFeatureAvailable)() &&
-                (cache !== undefined || packageManagerFromManifest)) {
+                (cache || isCacheEnabled)) {
                 const cacheDependencyPath = core.getInput('cache-dependency-path');
                 const packageManager = cache !== undefined ? cache : packageManagerFromManifest;
                 core.info(`Value of packageManager: ${packageManager}`);
