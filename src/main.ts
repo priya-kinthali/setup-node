@@ -69,12 +69,9 @@ export async function run() {
       `Value of packageManagerFromManifest: ${packageManagerFromManifest}`
     );
     core.info(`Value of cache: ${cache}`);
-    const isCacheDisabled = cache === ''; // Explicitly disable caching if cache is an empty string
-    const isCacheEnabled = cache === undefined && packageManagerFromManifest;
     if (
-      !isCacheDisabled &&
-      isCacheFeatureAvailable() &&
-      (cache || isCacheEnabled)
+      (cache !== '' || packageManagerFromManifest) &&
+      isCacheFeatureAvailable()
     ) {
       const cacheDependencyPath = core.getInput('cache-dependency-path');
       const packageManager =
