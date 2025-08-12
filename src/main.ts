@@ -69,13 +69,10 @@ export async function run() {
       `Value of packageManagerFromManifest: ${packageManagerFromManifest}`
     );
     core.info(`Value of cache: ${cache}`);
-    if (
-      (cache !== '' || packageManagerFromManifest) &&
-      isCacheFeatureAvailable()
-    ) {
+    core.info(`Type of cache: ${typeof cache}`);
+    if ((cache !== "" || packageManagerFromManifest) && isCacheFeatureAvailable()) {
       const cacheDependencyPath = core.getInput('cache-dependency-path');
-      const packageManager =
-        cache !== undefined ? cache : packageManagerFromManifest;
+      const packageManager = cache !== '' ? cache : packageManagerFromManifest;
       core.info(`Value of packageManager: ${packageManager}`);
       if (!packageManager) {
         return;
