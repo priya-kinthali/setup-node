@@ -241,14 +241,9 @@ describe('main tests', () => {
 
   describe('cache on GHES', () => {
     beforeEach(() => {
-      // Reset mocks and environment variables before each test
-      jest.resetModules();
-      jest.clearAllMocks();
       jest.spyOn(core, 'saveState').mockImplementation(() => {});
       jest.spyOn(core, 'warning').mockImplementation(() => {});
-      delete process.env['GITHUB_SERVER_URL'];
     });
-
     it('Should throw an error, because cache is not supported', async () => {
       inputs['node-version'] = '12';
       inputs['cache'] = 'npm';
@@ -261,9 +256,6 @@ describe('main tests', () => {
       // expect(logSpy).toHaveBeenCalledWith(`Found in cache @ ${toolPath}`);
       process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
       isCacheActionAvailable.mockImplementation(() => false);
-
-      // Mock package.json with no packageManager field
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({}));
 
       await main.run();
 
@@ -285,9 +277,6 @@ describe('main tests', () => {
       process.env['GITHUB_SERVER_URL'] = '';
       isCacheActionAvailable.mockImplementation(() => false);
 
-      // Mock package.json with no packageManager field
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({}));
-
       await main.run();
 
       expect(warningSpy).toHaveBeenCalledWith(
@@ -295,33 +284,9 @@ describe('main tests', () => {
       );
     });
 
-    it('Should enable caching by default when packageManager field is defined', async () => {
-      inputs['node-version'] = '12';
-      inputs['cache'] = ''; // User did not specify cache
-
-      inSpy.mockImplementation(name => inputs[name]);
-      const toolPath = path.normalize('/cache/node/18.0.0/x64');
-      findSpy.mockImplementation(() => toolPath);
-
-      process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
-      isCacheActionAvailable.mockImplementation(() => true);
-
-      // packageManager in package.json
-      (fs.readFileSync as jest.Mock).mockReturnValue(
-        JSON.stringify({
-          packageManager: 'yarn@3.2.0'
-        })
-      );
-
-      await main.run();
-
-      // Should enable caching (saveState called with 'yarn')
-      expect(core.saveState).toHaveBeenCalledWith(expect.anything(), 'yarn');
-    });
-
-    it('Should enable cache if devEngines.packageManager field is present', async () => {
-      inputs['node-version'] = '12';
-      inputs['cache'] = ''; // Explicitly opt-in via package.json
+    it('Should enable caching when EnablePackageManagerCache is true and devEngines.packageManager is present in package.json', async () => {
+      inputs['enable-package-manager-cache'] = 'true';
+      inputs['cache'] = ''; // No cache input is provided
 
       inSpy.mockImplementation(name => inputs[name]);
       findSpy.mockImplementation(() =>
@@ -330,24 +295,26 @@ describe('main tests', () => {
       process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
       isCacheActionAvailable.mockImplementation(() => true);
 
-      // devEngines.packageManager in package.json
+      // Mock package.json with devEngines.packageManager field
       (fs.readFileSync as jest.Mock).mockReturnValue(
         JSON.stringify({
           devEngines: {
-            packageManager: {name: 'pnpm'}
+            packageManager: {
+              name: 'pnpm'
+            }
           }
         })
       );
 
       await main.run();
 
-      // Should enable caching (saveState called with 'pnpm')
+      // Should enable caching (saveState called with devEngines.packageManager)
       expect(core.saveState).toHaveBeenCalledWith(expect.anything(), 'pnpm');
     });
 
-    it('Should NOT enable caching when neither cache nor packageManager is set', async () => {
-      inputs['node-version'] = '12';
-      inputs['cache'] = '';
+    it('Should enable caching when EnablePackageManagerCache is true and packageManager is present in package.json', async () => {
+      inputs['enable-package-manager-cache'] = 'true';
+      inputs['cache'] = ''; // No cache input is provided
 
       inSpy.mockImplementation(name => inputs[name]);
       findSpy.mockImplementation(() =>
@@ -356,17 +323,45 @@ describe('main tests', () => {
       process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
       isCacheActionAvailable.mockImplementation(() => true);
 
-      // package.json with no cache info
+      // Mock package.json with packageManager field
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        JSON.stringify({
+          packageManager: 'yarn@3.2.0'
+        })
+      );
+
+      await main.run();
+
+      // Should enable caching (saveState called with packageManager)
+      expect(core.saveState).toHaveBeenCalledWith(expect.anything(), 'yarn');
+    });
+
+    it('Should NOT enable caching when EnablePackageManagerCache is true but packageManager is missing in package.json', async () => {
+      inputs['enable-package-manager-cache'] = 'true';
+      inputs['cache'] = ''; // Explicitly opt-out
+
+      inSpy.mockImplementation(name => inputs[name]);
+      findSpy.mockImplementation(() =>
+        path.normalize('/cache/node/12.16.1/x64')
+      );
+      process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
+      isCacheActionAvailable.mockImplementation(() => true);
+
+      // Mock package.json without packageManager field
       (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify({}));
 
       await main.run();
 
+      // Should NOT enable caching (saveState not called)
       expect(core.saveState).not.toHaveBeenCalled();
+      expect(core.info).toHaveBeenCalledWith(
+        'No package manager cache available.'
+      );
     });
 
-    it('Should NOT enable caching when cache is explicitly disabled', async () => {
-      inputs['node-version'] = '12';
-      inputs['cache'] = 'false'; // Explicitly opt-out
+    it('Should NOT enable caching when EnablePackageManagerCache is false and caching is explicitly disabled', async () => {
+      inputs['enable-package-manager-cache'] = 'false';
+      inputs['cache'] = ''; // Explicitly opt-out
 
       inSpy.mockImplementation(name => inputs[name]);
       findSpy.mockImplementation(() =>
@@ -375,10 +370,10 @@ describe('main tests', () => {
       process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
       isCacheActionAvailable.mockImplementation(() => true);
 
-      // packageManager in package.json
+      // Mock package.json with packageManager field
       (fs.readFileSync as jest.Mock).mockReturnValue(
         JSON.stringify({
-          packageManager: 'yarn@3.2.0'
+          packageManager: 'npm@8.0.0'
         })
       );
 

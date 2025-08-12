@@ -135,7 +135,18 @@ It's **always** recommended to commit the lockfile of your package manager for s
 
 ## Caching global packages data
 
-The action has a built-in functionality for caching and restoring dependencies. It uses [actions/cache](https://github.com/actions/cache) under the hood for caching global packages data but requires less configuration settings. Supported package managers are `npm`, `yarn`, `pnpm` (v6.10+). The `cache` input is optional. If not set, caching is automatically enabled if a supported package manager is detected in your `package.json` (`devEngines.packageManager.name` or `packageManager` field). If set to `'false'`, caching is explicitly disabled, even if a package manager is present.
+The action has a built-in functionality for caching and restoring dependencies. It uses [actions/cache](https://github.com/actions/cache) under the hood for caching global packages data but requires less configuration settings. Supported package managers are `npm`, `yarn`, `pnpm` (v6.10+). The `cache` input is optional, and caching is turned off by default.
+Additionally, the `enable-package-manager-cache` input has been introduced to provide more control over caching behavior. When `enable-package-manager-cache` flag is set to `true`, caching will be enabled based on the `packageManager` field or `dev.engines.packageManager` field in the `package.json` file, even if the `cache` input is not specified or is an empty string. By default, this input is set to `false`.
+
+```yaml
+steps:
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+  with:
+    enable-package-manager-cache: true
+- run: npm ci
+```
+> When the `enable-package-manager-cache` is set to `true`, caching will be enabled if a valid `package manager` is detected in the `package.json` file. Otherwise, caching will remain disabled.
 
 The action defaults to search for the dependency file (`package-lock.json`, `npm-shrinkwrap.json` or `yarn.lock`) in the repository root, and uses its hash as a part of the cache key. Use `cache-dependency-path` for cases when multiple dependency files are used, or they are located in different subdirectories.
 

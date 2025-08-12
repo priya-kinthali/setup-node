@@ -21,6 +21,9 @@ export async function run() {
 
     let arch = core.getInput('architecture');
     const cache = core.getInput('cache');
+    const EnablePackageManagerCache = core.getInput(
+      'enable-package-manager-cache'
+    );
 
     // if architecture supplied but node-version is not
     // if we don't throw a warning, the already installed x64 node will be used which is not probably what user meant.
@@ -64,25 +67,20 @@ export async function run() {
       auth.configAuthentication(registryUrl, alwaysAuth);
     }
 
-    const packageManagerFromManifest = getNameFromPackageManagerField();
-    core.info(
-      `Value of packageManagerFromManifest: ${packageManagerFromManifest}`
-    );
-    core.info(`Value of cache: ${cache}`);
-    core.info(`Type of cache: ${typeof cache}`);
-    if (
-      cache !== 'false' &&
-      (cache !== '' || packageManagerFromManifest) &&
-      isCacheFeatureAvailable()
-    ) {
+    if (cache && isCacheFeatureAvailable()) {
+      core.saveState(State.CachePackageManager, cache);
       const cacheDependencyPath = core.getInput('cache-dependency-path');
-      const packageManager = cache !== '' ? cache : packageManagerFromManifest;
-      core.info(`Value of packageManager: ${packageManager}`);
-      if (!packageManager) {
-        return;
+      await restoreCache(cache, cacheDependencyPath);
+    } else if (!cache && EnablePackageManagerCache === 'true') {
+      const packageManagerCache = getNameFromPackageManagerField();
+      core.info(`Value of packageManagerFromManifest: ${packageManagerCache}`);
+      if (packageManagerCache) {
+        core.saveState(State.CachePackageManager, packageManagerCache);
+        const cacheDependencyPath = core.getInput('cache-dependency-path');
+        await restoreCache(packageManagerCache, cacheDependencyPath);
+      } else {
+        core.info('No package manager cache available.');
       }
-      core.saveState(State.CachePackageManager, packageManager);
-      await restoreCache(packageManager, cacheDependencyPath);
     }
 
     const matchersPath = path.join(__dirname, '../..', '.github');

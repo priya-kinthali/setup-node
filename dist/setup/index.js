@@ -99604,6 +99604,7 @@ function run() {
             const version = resolveVersionInput();
             let arch = core.getInput('architecture');
             const cache = core.getInput('cache');
+            const EnablePackageManagerCache = core.getInput('enable-package-manager-cache');
             // if architecture supplied but node-version is not
             // if we don't throw a warning, the already installed x64 node will be used which is not probably what user meant.
             if (arch && !version) {
@@ -99637,21 +99638,22 @@ function run() {
             if (registryUrl) {
                 auth.configAuthentication(registryUrl, alwaysAuth);
             }
-            const packageManagerFromManifest = getNameFromPackageManagerField();
-            core.info(`Value of packageManagerFromManifest: ${packageManagerFromManifest}`);
-            core.info(`Value of cache: ${cache}`);
-            core.info(`Type of cache: ${typeof cache}`);
-            if (cache !== 'false' &&
-                (cache !== '' || packageManagerFromManifest) &&
-                (0, cache_utils_1.isCacheFeatureAvailable)()) {
+            if (cache && (0, cache_utils_1.isCacheFeatureAvailable)()) {
+                core.saveState(constants_1.State.CachePackageManager, cache);
                 const cacheDependencyPath = core.getInput('cache-dependency-path');
-                const packageManager = cache !== '' ? cache : packageManagerFromManifest;
-                core.info(`Value of packageManager: ${packageManager}`);
-                if (!packageManager) {
-                    return;
+                yield (0, cache_restore_1.restoreCache)(cache, cacheDependencyPath);
+            }
+            else if (!cache && EnablePackageManagerCache === 'true') {
+                const packageManagerCache = getNameFromPackageManagerField();
+                core.info(`Value of packageManagerFromManifest: ${packageManagerCache}`);
+                if (packageManagerCache) {
+                    core.saveState(constants_1.State.CachePackageManager, packageManagerCache);
+                    const cacheDependencyPath = core.getInput('cache-dependency-path');
+                    yield (0, cache_restore_1.restoreCache)(packageManagerCache, cacheDependencyPath);
                 }
-                core.saveState(constants_1.State.CachePackageManager, packageManager);
-                yield (0, cache_restore_1.restoreCache)(packageManager, cacheDependencyPath);
+                else {
+                    core.info('No package manager cache available.');
+                }
             }
             const matchersPath = path.join(__dirname, '../..', '.github');
             core.info(`##[add-matcher]${path.join(matchersPath, 'tsc.json')}`);
