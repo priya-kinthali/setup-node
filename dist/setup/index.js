@@ -99641,9 +99641,9 @@ function run() {
             core.info(`Value of packageManagerFromManifest: ${packageManagerFromManifest}`);
             core.info(`Value of cache: ${cache}`);
             core.info(`Type of cache: ${typeof cache}`);
-            const cacheInputPresent = Object.prototype.hasOwnProperty.call(process.env, "INPUT_CACHE");
-            core.info(`Is cache input present: ${cacheInputPresent}`);
-            if ((cache !== "" || packageManagerFromManifest) && (0, cache_utils_1.isCacheFeatureAvailable)()) {
+            if (cache !== 'false' &&
+                (cache !== '' || packageManagerFromManifest) &&
+                (0, cache_utils_1.isCacheFeatureAvailable)()) {
                 const cacheDependencyPath = core.getInput('cache-dependency-path');
                 const packageManager = cache !== '' ? cache : packageManagerFromManifest;
                 core.info(`Value of packageManager: ${packageManager}`);
