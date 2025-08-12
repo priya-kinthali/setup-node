@@ -79,7 +79,9 @@ export async function run() {
         const cacheDependencyPath = core.getInput('cache-dependency-path');
         await restoreCache(packageManagerCache, cacheDependencyPath);
       } else {
-        core.info('No package manager cache available.');
+        core.warning(
+          'No package manager field found in package.json. Ensure you specify a package manager to optimize caching.'
+        );
       }
     }
 

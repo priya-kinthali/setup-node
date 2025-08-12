@@ -354,8 +354,8 @@ describe('main tests', () => {
 
       // Should NOT enable caching (saveState not called)
       expect(core.saveState).not.toHaveBeenCalled();
-      expect(core.info).toHaveBeenCalledWith(
-        'No package manager cache available.'
+      expect(core.warning).toHaveBeenCalledWith(
+        'No package manager field found in package.json. Ensure you specify a package manager to optimize caching.'
       );
     });
 

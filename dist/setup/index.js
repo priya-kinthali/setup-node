@@ -99652,7 +99652,7 @@ function run() {
                     yield (0, cache_restore_1.restoreCache)(packageManagerCache, cacheDependencyPath);
                 }
                 else {
-                    core.info('No package manager cache available.');
+                    core.warning('No package manager field found in package.json. Ensure you specify a package manager to optimize caching.');
                 }
             }
             const matchersPath = path.join(__dirname, '../..', '.github');
