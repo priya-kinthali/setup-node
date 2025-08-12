@@ -99645,7 +99645,6 @@ function run() {
             }
             else if (!cache && EnablePackageManagerCache === 'true') {
                 const packageManagerCache = getNameFromPackageManagerField();
-                core.info(`Value of packageManagerFromManifest: ${packageManagerCache}`);
                 if (packageManagerCache) {
                     core.saveState(constants_1.State.CachePackageManager, packageManagerCache);
                     const cacheDependencyPath = core.getInput('cache-dependency-path');

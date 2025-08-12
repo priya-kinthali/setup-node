@@ -73,7 +73,6 @@ export async function run() {
       await restoreCache(cache, cacheDependencyPath);
     } else if (!cache && EnablePackageManagerCache === 'true') {
       const packageManagerCache = getNameFromPackageManagerField();
-      core.info(`Value of packageManagerFromManifest: ${packageManagerCache}`);
       if (packageManagerCache) {
         core.saveState(State.CachePackageManager, packageManagerCache);
         const cacheDependencyPath = core.getInput('cache-dependency-path');
