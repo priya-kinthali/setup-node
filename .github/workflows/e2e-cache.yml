@@ -254,9 +254,9 @@ jobs:
         node-version: [18, 20, 22]
     steps:
       - uses: actions/checkout@v4
-      - name: Create package.json with packageManager field
-        run: |
-          echo '{ "name": "test-project", "version": "1.0.0", "packageManager": "npm@8.0.0" }' > package.json
+      # - name: Create package.json with packageManager field
+      #   run: |
+      #     echo '{ "name": "test-project", "version": "1.0.0", "packageManager": "npm@8.0.0" }' > package.json
       - name: Clean global cache
         run: npm cache clean --force
       - name: Setup Node with caching enabled
