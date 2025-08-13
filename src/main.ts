@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 
 import os from 'os';
+import fs from 'fs';
 
 import * as auth from './authutil';
 import * as path from 'path';
@@ -20,6 +21,9 @@ export async function run() {
 
     let arch = core.getInput('architecture');
     const cache = core.getInput('cache');
+    const EnablePackageManagerCache = core.getInput(
+      'enable-package-manager-cache'
+    );
 
     // if architecture supplied but node-version is not
     // if we don't throw a warning, the already installed x64 node will be used which is not probably what user meant.
@@ -67,6 +71,17 @@ export async function run() {
       core.saveState(State.CachePackageManager, cache);
       const cacheDependencyPath = core.getInput('cache-dependency-path');
       await restoreCache(cache, cacheDependencyPath);
+    } else if (!cache && EnablePackageManagerCache === 'true') {
+      const packageManagerCache = getNameFromPackageManagerField();
+      if (packageManagerCache) {
+        core.saveState(State.CachePackageManager, packageManagerCache);
+        const cacheDependencyPath = core.getInput('cache-dependency-path');
+        await restoreCache(packageManagerCache, cacheDependencyPath);
+      } else {
+        core.warning(
+          'No package manager field found in package.json. Ensure you specify a package manager to optimize caching.'
+        );
+      }
     }
 
     const matchersPath = path.join(__dirname, '../..', '.github');
@@ -116,4 +131,24 @@ function resolveVersionInput(): string {
   }
 
   return version;
+}
+
+export function getNameFromPackageManagerField(): string | undefined {
+  // Check devEngines.packageManager and packageManager field in package.json
+  try {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+    return (
+      packageJson.devEngines?.packageManager?.name ||
+      (() => {
+        const pm = packageJson.packageManager;
+        if (typeof pm === 'string') {
+          const match = pm.match(/^(?:\^)?(npm|yarn|pnpm)@/);
+          return match ? match[1] : undefined;
+        }
+        return undefined;
+      })()
+    );
+  } catch (err) {
+    return undefined;
+  }
 }
