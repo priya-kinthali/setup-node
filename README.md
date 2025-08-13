@@ -137,7 +137,7 @@ It's **always** recommended to commit the lockfile of your package manager for s
 
 The action has a built-in functionality for caching and restoring dependencies. It uses [actions/cache](https://github.com/actions/cache) under the hood for caching global packages data but requires less configuration settings. Supported package managers are `npm`, `yarn`, `pnpm` (v6.10+). The `cache` input is optional, and caching is turned off by default.
 
-Additionally, the `enable-package-manager-cache` input has been introduced to provide more control over caching behavior. When `enable-package-manager-cache` flag is set to `true`, caching will be enabled based on the `packageManager` field or `dev.engines.packageManager` field in the `package.json` file, even if the `cache` input is not specified or is an empty string. By default, this input is set to `false`.
+Additionally, the `enable-package-manager-cache` input has been introduced to provide more control over caching behavior. When `enable-package-manager-cache` flag is set to `true`, caching will be automatically enabled based on the `packageManager` field or `dev.engines.packageManager` field in the `package.json` file, even if the `cache` input is not specified or is an empty string. By default, this input is set to `false`.
 
 ```yaml
 steps:
