@@ -25,7 +25,7 @@ inputs:
     description: 'Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.'
   enable-package-manager-cache:
     description: 'Set to true to enable caching based on the package manager field when the cache input is not specified or is an empty string. Default is false.'
-    default: false
+    default: true
   cache-dependency-path:
     description: 'Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.'
   mirror:

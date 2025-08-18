@@ -354,9 +354,6 @@ describe('main tests', () => {
 
       // Should NOT enable caching (saveState not called)
       expect(core.saveState).not.toHaveBeenCalled();
-      expect(core.warning).toHaveBeenCalledWith(
-        'No package manager field found in package.json. Ensure you specify a package manager to optimize caching.'
-      );
     });
 
     it('Should NOT enable caching when EnablePackageManagerCache is false and caching is explicitly disabled', async () => {
