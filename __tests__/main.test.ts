@@ -285,7 +285,7 @@ describe('main tests', () => {
     });
 
     it('Should enable caching when EnablePackageManagerCache is true and devEngines.packageManager is present in package.json', async () => {
-      inputs['enable-package-manager-cache'] = 'true';
+      inputs['default-cache'] = 'true';
       inputs['cache'] = ''; // No cache input is provided
 
       inSpy.mockImplementation(name => inputs[name]);
@@ -313,7 +313,7 @@ describe('main tests', () => {
     });
 
     it('Should enable caching when EnablePackageManagerCache is true and packageManager is present in package.json', async () => {
-      inputs['enable-package-manager-cache'] = 'true';
+      inputs['default-cache'] = 'true';
       inputs['cache'] = ''; // No cache input is provided
 
       inSpy.mockImplementation(name => inputs[name]);
@@ -337,7 +337,7 @@ describe('main tests', () => {
     });
 
     it('Should NOT enable caching when EnablePackageManagerCache is true but packageManager is missing in package.json', async () => {
-      inputs['enable-package-manager-cache'] = 'true';
+      inputs['default-cache'] = 'true';
       inputs['cache'] = ''; // Explicitly opt-out
 
       inSpy.mockImplementation(name => inputs[name]);
@@ -354,13 +354,10 @@ describe('main tests', () => {
 
       // Should NOT enable caching (saveState not called)
       expect(core.saveState).not.toHaveBeenCalled();
-      expect(core.warning).toHaveBeenCalledWith(
-        'No package manager field found in package.json. Ensure you specify a package manager to optimize caching.'
-      );
     });
 
     it('Should NOT enable caching when EnablePackageManagerCache is false and caching is explicitly disabled', async () => {
-      inputs['enable-package-manager-cache'] = 'false';
+      inputs['default-cache'] = 'false';
       inputs['cache'] = ''; // Explicitly opt-out
 
       inSpy.mockImplementation(name => inputs[name]);

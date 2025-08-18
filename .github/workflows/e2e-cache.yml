@@ -244,8 +244,8 @@ jobs:
             sub2/*.lock
             sub3/*.lock
 
-  node-enable-package-manager-cache:
-    name: Test with enable-package-manager-cache flag (Node ${{ matrix.node-version}}, ${{ matrix.os }})
+  node-default-cache:
+    name: Test enabling cache if package manager is present (Node ${{ matrix.node-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -263,7 +263,6 @@ jobs:
         uses: ./
         with:
           node-version: ${{ matrix.node-version }}
-          enable-package-manager-cache: true
       - name: Install dependencies
         run: npm install
       - name: Verify node and npm

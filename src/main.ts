@@ -21,9 +21,8 @@ export async function run() {
 
     let arch = core.getInput('architecture');
     const cache = core.getInput('cache');
-    const EnablePackageManagerCache = core.getInput(
-      'enable-package-manager-cache'
-    );
+    const EnablePackageManagerCache =
+      (core.getInput('default-cache') || 'true').toUpperCase() === 'TRUE';
 
     // if architecture supplied but node-version is not
     // if we don't throw a warning, the already installed x64 node will be used which is not probably what user meant.
@@ -67,21 +66,14 @@ export async function run() {
       auth.configAuthentication(registryUrl, alwaysAuth);
     }
 
+    const packageManagerCache = getNameFromPackageManagerField();
+    const cacheDependencyPath = core.getInput('cache-dependency-path');
     if (cache && isCacheFeatureAvailable()) {
       core.saveState(State.CachePackageManager, cache);
-      const cacheDependencyPath = core.getInput('cache-dependency-path');
       await restoreCache(cache, cacheDependencyPath);
-    } else if (!cache && EnablePackageManagerCache === 'true') {
-      const packageManagerCache = getNameFromPackageManagerField();
-      if (packageManagerCache) {
-        core.saveState(State.CachePackageManager, packageManagerCache);
-        const cacheDependencyPath = core.getInput('cache-dependency-path');
-        await restoreCache(packageManagerCache, cacheDependencyPath);
-      } else {
-        core.warning(
-          'No package manager field found in package.json. Ensure you specify a package manager to optimize caching.'
-        );
-      }
+    } else if (packageManagerCache && EnablePackageManagerCache) {
+      core.saveState(State.CachePackageManager, packageManagerCache);
+      await restoreCache(packageManagerCache, cacheDependencyPath);
     }
 
     const matchersPath = path.join(__dirname, '../..', '.github');
