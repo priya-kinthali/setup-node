@@ -99604,7 +99604,7 @@ function run() {
             const version = resolveVersionInput();
             let arch = core.getInput('architecture');
             const cache = core.getInput('cache');
-            const EnablePackageManagerCache = (core.getInput('enable-package-manager-cache') || 'true').toUpperCase() === 'TRUE';
+            const EnablePackageManagerCache = (core.getInput('default-cache') || 'true').toUpperCase() === 'TRUE';
             // if architecture supplied but node-version is not
             // if we don't throw a warning, the already installed x64 node will be used which is not probably what user meant.
             if (arch && !version) {
@@ -99639,14 +99639,14 @@ function run() {
                 auth.configAuthentication(registryUrl, alwaysAuth);
             }
             const packageManagerCache = getNameFromPackageManagerField();
+            const cacheDependencyPath = core.getInput('cache-dependency-path');
+            // Check if caching is enabled and the feature is available
             if (cache && (0, cache_utils_1.isCacheFeatureAvailable)()) {
                 core.saveState(constants_1.State.CachePackageManager, cache);
-                const cacheDependencyPath = core.getInput('cache-dependency-path');
                 yield (0, cache_restore_1.restoreCache)(cache, cacheDependencyPath);
             }
-            else if (!cache && packageManagerCache && EnablePackageManagerCache) {
+            else if (packageManagerCache && EnablePackageManagerCache) {
                 core.saveState(constants_1.State.CachePackageManager, packageManagerCache);
-                const cacheDependencyPath = core.getInput('cache-dependency-path');
                 yield (0, cache_restore_1.restoreCache)(packageManagerCache, cacheDependencyPath);
             }
             const matchersPath = path.join(__dirname, '../..', '.github');

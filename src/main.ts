@@ -22,9 +22,7 @@ export async function run() {
     let arch = core.getInput('architecture');
     const cache = core.getInput('cache');
     const EnablePackageManagerCache =
-      (
-        core.getInput('enable-package-manager-cache') || 'true'
-      ).toUpperCase() === 'TRUE';
+      (core.getInput('default-cache') || 'true').toUpperCase() === 'TRUE';
     // if architecture supplied but node-version is not
     // if we don't throw a warning, the already installed x64 node will be used which is not probably what user meant.
     if (arch && !version) {
@@ -68,13 +66,14 @@ export async function run() {
     }
 
     const packageManagerCache = getNameFromPackageManagerField();
+    const cacheDependencyPath = core.getInput('cache-dependency-path');
+
+    // Check if caching is enabled and the feature is available
     if (cache && isCacheFeatureAvailable()) {
       core.saveState(State.CachePackageManager, cache);
-      const cacheDependencyPath = core.getInput('cache-dependency-path');
       await restoreCache(cache, cacheDependencyPath);
-    } else if (!cache && packageManagerCache && EnablePackageManagerCache) {
+    } else if (packageManagerCache && EnablePackageManagerCache) {
       core.saveState(State.CachePackageManager, packageManagerCache);
-      const cacheDependencyPath = core.getInput('cache-dependency-path');
       await restoreCache(packageManagerCache, cacheDependencyPath);
     }
 
