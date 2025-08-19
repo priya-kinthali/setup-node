@@ -240,6 +240,10 @@ describe('main tests', () => {
   });
 
   describe('cache on GHES', () => {
+    beforeEach(() => {
+      jest.spyOn(core, 'saveState').mockImplementation(() => {});
+      jest.spyOn(core, 'warning').mockImplementation(() => {});
+    });
     it('Should throw an error, because cache is not supported', async () => {
       inputs['node-version'] = '12';
       inputs['cache'] = 'npm';
@@ -278,6 +282,102 @@ describe('main tests', () => {
       expect(warningSpy).toHaveBeenCalledWith(
         'The runner was not able to contact the cache service. Caching will be skipped'
       );
+    });
+
+    it('Should enable caching when packagemanagercache is true and devEngines.packageManager is present in package.json', async () => {
+      inputs['package-manager-cache'] = 'true';
+      inputs['cache'] = ''; // No cache input is provided
+
+      inSpy.mockImplementation(name => inputs[name]);
+      findSpy.mockImplementation(() =>
+        path.normalize('/cache/node/12.16.1/x64')
+      );
+      process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
+      isCacheActionAvailable.mockImplementation(() => true);
+
+      // Mock package.json with devEngines.packageManager field
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        JSON.stringify({
+          devEngines: {
+            packageManager: {
+              name: 'pnpm'
+            }
+          }
+        })
+      );
+
+      await main.run();
+
+      // Should enable caching (saveState called with devEngines.packageManager)
+      expect(core.saveState).toHaveBeenCalledWith(expect.anything(), 'pnpm');
+    });
+
+    it('Should enable caching when packagemanagercache is true and packageManager is present in package.json', async () => {
+      inputs['package-manager-cache'] = 'true';
+      inputs['cache'] = ''; // No cache input is provided
+
+      inSpy.mockImplementation(name => inputs[name]);
+      findSpy.mockImplementation(() =>
+        path.normalize('/cache/node/12.16.1/x64')
+      );
+      process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
+      isCacheActionAvailable.mockImplementation(() => true);
+
+      // Mock package.json with packageManager field
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        JSON.stringify({
+          packageManager: 'yarn@3.2.0'
+        })
+      );
+
+      await main.run();
+
+      // Should enable caching (saveState called with packageManager)
+      expect(core.saveState).toHaveBeenCalledWith(expect.anything(), 'yarn');
+    });
+
+    it('Should NOT enable caching when packagemanagercache is true but packageManager is missing in package.json', async () => {
+      inputs['package-manager-cache'] = 'true';
+      inputs['cache'] = ''; // Explicitly opt-out
+
+      inSpy.mockImplementation(name => inputs[name]);
+      findSpy.mockImplementation(() =>
+        path.normalize('/cache/node/12.16.1/x64')
+      );
+      process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
+      isCacheActionAvailable.mockImplementation(() => true);
+
+      // Mock package.json without packageManager field
+      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify({}));
+
+      await main.run();
+
+      // Should NOT enable caching (saveState not called)
+      expect(core.saveState).not.toHaveBeenCalled();
+    });
+
+    it('Should NOT enable caching when packagemanagercache is false and caching is explicitly disabled', async () => {
+      inputs['package-manager-cache'] = 'false';
+      inputs['cache'] = ''; // Explicitly opt-out
+
+      inSpy.mockImplementation(name => inputs[name]);
+      findSpy.mockImplementation(() =>
+        path.normalize('/cache/node/12.16.1/x64')
+      );
+      process.env['GITHUB_SERVER_URL'] = 'https://www.test.com';
+      isCacheActionAvailable.mockImplementation(() => true);
+
+      // Mock package.json with packageManager field
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        JSON.stringify({
+          packageManager: 'npm@8.0.0'
+        })
+      );
+
+      await main.run();
+
+      // Should NOT enable caching (saveState not called)
+      expect(core.saveState).not.toHaveBeenCalled();
     });
   });
 });
