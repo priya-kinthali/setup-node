@@ -137,14 +137,14 @@ It's **always** recommended to commit the lockfile of your package manager for s
 
 The action has a built-in functionality for caching and restoring dependencies. It uses [actions/cache](https://github.com/actions/cache) under the hood for caching global packages data but requires less configuration settings. Supported package managers are `npm`, `yarn`, `pnpm` (v6.10+). The `cache` input is optional.
 
-Caching is turned on by default when a `packageManager` or `dev.engines.packageManager` field is detected in the `package.json` file. The `detect-cache` input provides control over this automatic caching behavior. By default, `detect-cache` is set to `true`, which enables caching when a valid package manager field is detected in the `package.json` file. To disable this automatic caching, set the `detect-cache` input to `false`.
+Caching is turned on by default when a `packageManager` or `dev.engines.packageManager` field is detected in the `package.json` file. The `package-manager-cache` input provides control over this automatic caching behavior. By default, `package-manager-cache` is set to `true`, which enables caching when a valid package manager field is detected in the `package.json` file. To disable this automatic caching, set the `package-manager-cache` input to `false`.
 
 ```yaml
 steps:
 - uses: actions/checkout@v4
 - uses: actions/setup-node@v4
   with:
-    detect-cache: false
+    package-manager-cache: false
 - run: npm ci
 ```
 > If no `packageManager` or `dev.engines.packageManager` field is detected in the `package.json` file, caching will remain disabled unless explicitly configured.

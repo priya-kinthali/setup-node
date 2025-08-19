@@ -284,8 +284,8 @@ describe('main tests', () => {
       );
     });
 
-    it('Should enable caching when EnablePackageManagerCache is true and devEngines.packageManager is present in package.json', async () => {
-      inputs['detect-cache'] = 'true';
+    it('Should enable caching when packagemanagercache is true and devEngines.packageManager is present in package.json', async () => {
+      inputs['package-manager-cache'] = 'true';
       inputs['cache'] = ''; // No cache input is provided
 
       inSpy.mockImplementation(name => inputs[name]);
@@ -312,8 +312,8 @@ describe('main tests', () => {
       expect(core.saveState).toHaveBeenCalledWith(expect.anything(), 'pnpm');
     });
 
-    it('Should enable caching when EnablePackageManagerCache is true and packageManager is present in package.json', async () => {
-      inputs['detect-cache'] = 'true';
+    it('Should enable caching when packagemanagercache is true and packageManager is present in package.json', async () => {
+      inputs['package-manager-cache'] = 'true';
       inputs['cache'] = ''; // No cache input is provided
 
       inSpy.mockImplementation(name => inputs[name]);
@@ -336,8 +336,8 @@ describe('main tests', () => {
       expect(core.saveState).toHaveBeenCalledWith(expect.anything(), 'yarn');
     });
 
-    it('Should NOT enable caching when EnablePackageManagerCache is true but packageManager is missing in package.json', async () => {
-      inputs['detect-cache'] = 'true';
+    it('Should NOT enable caching when packagemanagercache is true but packageManager is missing in package.json', async () => {
+      inputs['package-manager-cache'] = 'true';
       inputs['cache'] = ''; // Explicitly opt-out
 
       inSpy.mockImplementation(name => inputs[name]);
@@ -356,8 +356,8 @@ describe('main tests', () => {
       expect(core.saveState).not.toHaveBeenCalled();
     });
 
-    it('Should NOT enable caching when EnablePackageManagerCache is false and caching is explicitly disabled', async () => {
-      inputs['detect-cache'] = 'false';
+    it('Should NOT enable caching when packagemanagercache is false and caching is explicitly disabled', async () => {
+      inputs['package-manager-cache'] = 'false';
       inputs['cache'] = ''; // Explicitly opt-out
 
       inSpy.mockImplementation(name => inputs[name]);
