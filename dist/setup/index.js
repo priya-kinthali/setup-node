@@ -99604,7 +99604,7 @@ function run() {
             const version = resolveVersionInput();
             let arch = core.getInput('architecture');
             const cache = core.getInput('cache');
-            const EnablePackageManagerCache = (core.getInput('detect-cache') || 'true').toUpperCase() === 'TRUE';
+            const detectcache = (core.getInput('detect-cache') || 'true').toUpperCase() === 'TRUE';
             // if architecture supplied but node-version is not
             // if we don't throw a warning, the already installed x64 node will be used which is not probably what user meant.
             if (arch && !version) {
@@ -99644,7 +99644,7 @@ function run() {
                 core.saveState(constants_1.State.CachePackageManager, cache);
                 yield (0, cache_restore_1.restoreCache)(cache, cacheDependencyPath);
             }
-            else if (packageManagerCache && EnablePackageManagerCache) {
+            else if (packageManagerCache && detectcache) {
                 core.saveState(constants_1.State.CachePackageManager, packageManagerCache);
                 yield (0, cache_restore_1.restoreCache)(packageManagerCache, cacheDependencyPath);
             }
