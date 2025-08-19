@@ -67,14 +67,14 @@ export async function run() {
       auth.configAuthentication(registryUrl, alwaysAuth);
     }
 
-    const packageManagerCache = getNameFromPackageManagerField();
+    const resolvedPackageManager = getNameFromPackageManagerField();
     const cacheDependencyPath = core.getInput('cache-dependency-path');
     if (cache && isCacheFeatureAvailable()) {
       core.saveState(State.CachePackageManager, cache);
       await restoreCache(cache, cacheDependencyPath);
-    } else if (packageManagerCache && packagemanagercache) {
-      core.saveState(State.CachePackageManager, packageManagerCache);
-      await restoreCache(packageManagerCache, cacheDependencyPath);
+    } else if (resolvedPackageManager && packagemanagercache) {
+      core.saveState(State.CachePackageManager, resolvedPackageManager);
+      await restoreCache(resolvedPackageManager, cacheDependencyPath);
     }
 
     const matchersPath = path.join(__dirname, '../..', '.github');

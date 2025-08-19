@@ -99639,15 +99639,15 @@ function run() {
             if (registryUrl) {
                 auth.configAuthentication(registryUrl, alwaysAuth);
             }
-            const packageManagerCache = getNameFromPackageManagerField();
+            const resolvedPackageManager = getNameFromPackageManagerField();
             const cacheDependencyPath = core.getInput('cache-dependency-path');
             if (cache && (0, cache_utils_1.isCacheFeatureAvailable)()) {
                 core.saveState(constants_1.State.CachePackageManager, cache);
                 yield (0, cache_restore_1.restoreCache)(cache, cacheDependencyPath);
             }
-            else if (packageManagerCache && packagemanagercache) {
-                core.saveState(constants_1.State.CachePackageManager, packageManagerCache);
-                yield (0, cache_restore_1.restoreCache)(packageManagerCache, cacheDependencyPath);
+            else if (resolvedPackageManager && packagemanagercache) {
+                core.saveState(constants_1.State.CachePackageManager, resolvedPackageManager);
+                yield (0, cache_restore_1.restoreCache)(resolvedPackageManager, cacheDependencyPath);
             }
             const matchersPath = path.join(__dirname, '../..', '.github');
             core.info(`##[add-matcher]${path.join(matchersPath, 'tsc.json')}`);
