@@ -23,7 +23,7 @@ inputs:
     default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
   cache:
     description: 'Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.'
-  default-cache:
+  detect-cache:
     description: 'Set to false to disable automatic caching based on the package manager field in package.json. By default, caching is enabled if the package manager field is present.'
     default: true
   cache-dependency-path:

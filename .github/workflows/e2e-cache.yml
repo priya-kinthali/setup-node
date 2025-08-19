@@ -244,7 +244,7 @@ jobs:
             sub2/*.lock
             sub3/*.lock
 
-  node-default-cache:
+  node-detect-cache:
     name: Test enabling cache if package manager is present (Node ${{ matrix.node-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
