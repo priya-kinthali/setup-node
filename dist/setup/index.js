@@ -99640,6 +99640,7 @@ function run() {
                 auth.configAuthentication(registryUrl, alwaysAuth);
             }
             const resolvedPackageManager = getNameFromPackageManagerField();
+            console.log('Resolved Package Manager:', resolvedPackageManager);
             const cacheDependencyPath = core.getInput('cache-dependency-path');
             if (cache && (0, cache_utils_1.isCacheFeatureAvailable)()) {
                 core.saveState(constants_1.State.CachePackageManager, cache);

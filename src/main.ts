@@ -68,6 +68,7 @@ export async function run() {
     }
 
     const resolvedPackageManager = getNameFromPackageManagerField();
+    console.log('Resolved Package Manager:', resolvedPackageManager);
     const cacheDependencyPath = core.getInput('cache-dependency-path');
     if (cache && isCacheFeatureAvailable()) {
       core.saveState(State.CachePackageManager, cache);
