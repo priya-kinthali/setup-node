@@ -142,7 +142,7 @@ export function getNameFromPackageManagerField(): string | undefined {
         const pm = packageJson.packageManager;
         if (typeof pm === 'string') {
           const regex = new RegExp(
-            `^(?:\\^)?(${SUPPORTED_PACKAGE_MANAGERS.join('|')})@`
+            `^(?:\^)?(${SUPPORTED_PACKAGE_MANAGERS.join('|')})@`
           );
           const match = pm.match(regex);
           return match ? match[1] : undefined;
