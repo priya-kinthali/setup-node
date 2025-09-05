@@ -18,7 +18,7 @@ See [action.yml](action.yml)
 
 <!-- start usage -->
 ```yaml
-- uses: actions/setup-node@v4
+- uses: actions/setup-node@v5
   with:
     # Version Spec of the version to use in SemVer notation.
     # It also admits such aliases as lts/*, latest, nightly and canary builds
@@ -98,8 +98,8 @@ See [action.yml](action.yml)
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
-- uses: actions/setup-node@v4
+- uses: actions/checkout@v5
+- uses: actions/setup-node@v5
   with:
     node-version: 18
 - run: npm ci
@@ -135,7 +135,19 @@ It's **always** recommended to commit the lockfile of your package manager for s
 
 ## Caching global packages data
 
-The action has a built-in functionality for caching and restoring dependencies. It uses [actions/cache](https://github.com/actions/cache) under the hood for caching global packages data but requires less configuration settings. Supported package managers are `npm`, `yarn`, `pnpm` (v6.10+). The `cache` input is optional, and caching is turned off by default.
+The action has a built-in functionality for caching and restoring dependencies. It uses [actions/cache](https://github.com/actions/cache) under the hood for caching global packages data but requires less configuration settings. Supported package managers are `npm`, `yarn`, `pnpm` (v6.10+). The `cache` input is optional.
+
+Caching is turned on by default when a `packageManager` field is detected in the `package.json` file. The `package-manager-cache` input provides control over this automatic caching behavior. By default, `package-manager-cache` is set to `true`, which enables caching when a valid package manager field is detected in the `package.json` file. To disable this automatic caching, set the `package-manager-cache` input to `false`.
+
+```yaml
+steps:
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+  with:
+    package-manager-cache: false
+- run: npm ci
+```
+> If no valid `packageManager` field is detected in the `package.json` file, caching will remain disabled unless explicitly configured.
 
 The action defaults to search for the dependency file (`package-lock.json`, `npm-shrinkwrap.json` or `yarn.lock`) in the repository root, and uses its hash as a part of the cache key. Use `cache-dependency-path` for cases when multiple dependency files are used, or they are located in different subdirectories.
 
@@ -147,8 +159,8 @@ See the examples of using cache for `yarn`/`pnpm` and `cache-dependency-path` in
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
-- uses: actions/setup-node@v4
+- uses: actions/checkout@v5
+- uses: actions/setup-node@v5
   with:
     node-version: 20
     cache: 'npm'
@@ -160,8 +172,8 @@ steps:
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
-- uses: actions/setup-node@v4
+- uses: actions/checkout@v5
+- uses: actions/setup-node@v5
   with:
     node-version: 20
     cache: 'npm'
@@ -181,9 +193,9 @@ jobs:
         node: [ 14, 16, 18 ]
     name: Node ${{ matrix.node }} sample
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
       - run: npm ci
@@ -197,7 +209,7 @@ jobs:
 To get a higher rate limit, you can [generate a personal access token on github.com](https://github.com/settings/tokens/new) and pass it as the `token` input for the action:
 
 ```yaml
-uses: actions/setup-node@v4
+uses: actions/setup-node@v5
 with:
   token: ${{ secrets.GH_DOTCOM_TOKEN }}
   node-version: 20
