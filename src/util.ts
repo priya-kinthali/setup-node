@@ -57,6 +57,11 @@ export function getNodeVersionFromFile(versionFilePath: string): string | null {
   }
 
   const found = contents.match(/^(?:node(js)?\s+)?v?(?<version>[^\s]+)$/m);
+  if (found?.groups?.version) {
+    core.info('Returning version from found match: ' + found.groups.version);
+  } else {
+    core.info('Returning trimmed contents: ' + contents.trim());
+  }
   return found?.groups?.version ?? contents.trim();
 }
 

@@ -99914,7 +99914,7 @@ const io = __importStar(__nccwpck_require__(94994));
 const fs_1 = __importDefault(__nccwpck_require__(79896));
 const path_1 = __importDefault(__nccwpck_require__(16928));
 function getNodeVersionFromFile(versionFilePath) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     if (!fs_1.default.existsSync(versionFilePath)) {
         throw new Error(`The specified node version file at: ${versionFilePath} does not exist`);
     }
@@ -99951,11 +99951,17 @@ function getNodeVersionFromFile(versionFilePath) {
             return null;
         }
     }
-    catch (_f) {
+    catch (_g) {
         core.info('Node version file is not JSON file');
     }
     const found = contents.match(/^(?:node(js)?\s+)?v?(?<version>[^\s]+)$/m);
-    return (_e = (_d = found === null || found === void 0 ? void 0 : found.groups) === null || _d === void 0 ? void 0 : _d.version) !== null && _e !== void 0 ? _e : contents.trim();
+    if ((_d = found === null || found === void 0 ? void 0 : found.groups) === null || _d === void 0 ? void 0 : _d.version) {
+        core.info('Returning version from found match: ' + found.groups.version);
+    }
+    else {
+        core.info('Returning trimmed contents: ' + contents.trim());
+    }
+    return (_f = (_e = found === null || found === void 0 ? void 0 : found.groups) === null || _e === void 0 ? void 0 : _e.version) !== null && _f !== void 0 ? _f : contents.trim();
 }
 exports.getNodeVersionFromFile = getNodeVersionFromFile;
 function printEnvDetailsAndSetOutput() {
