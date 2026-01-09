@@ -1,6 +1,6 @@
 ## Working with lockfiles
 
-All supported package managers recommend that you **always** commit the lockfile, although implementations vary doing so generally provides the following benefits:
+Most supported package managers recommend that you **always** commit the lockfile, although implementations vary doing so generally provides the following benefits:
 
 - Enables faster installation for CI and production environments, due to being able to skip package resolution.
 - Describes a single representation of a dependency tree such that teammates, deployments, and continuous integration are guaranteed to install exactly the same dependencies.
@@ -34,6 +34,25 @@ Ensure that `pnpm-lock.yaml` is always committed, when on CI pass `--frozen-lock
 **See also:**
 - [Working with Git - Lockfiles](https://pnpm.io/git#lockfiles)
 - [Documentation of `--frozen-lockfile` option](https://pnpm.io/cli/install#--frozen-lockfile)
+
+### Running without a lockfile
+
+If you choose not to use a lockfile, you must ensure that **caching is disabled**. The `cache` feature relies on the lockfile to generate a unique key for the cache entry.
+
+To run without a lockfile:
+1. Do not set the `cache` input.
+2. If your `package.json` contains a `packageManager` field set to npm (or devEngines.packageManager), automatic caching is enabled by default. Override this by setting `package-manager-cache: false`.
+
+```yaml
+steps:
+- uses: actions/checkout@v6
+- uses: actions/setup-node@v6
+  with:
+    node-version: '24'
+    package-manager-cache: false # Explicitly disable caching if you don't have a lockfile
+- run: npm install
+- run: npm test
+```
 
 ## Check latest version
 
@@ -445,9 +464,6 @@ steps:
 To access private GitHub Packages within the same organization, go to "Manage Actions access" in Package settings and set the repositories you want to access.
 
 Please refer to the [Ensuring workflow access to your package - Configuring a package's access control and visibility](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility#ensuring-workflow-access-to-your-package) for more details.
-
-### always-auth input
-The always-auth input sets `always-auth=true` in .npmrc file. With this option set [npm](https://docs.npmjs.com/cli/v6/using-npm/config#always-auth)/yarn sends the authentication credentials when making a request to the registries.
 
 ## Use private mirror
 
