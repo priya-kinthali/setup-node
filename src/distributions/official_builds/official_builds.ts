@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as tc from '@actions/tool-cache';
+import * as hc from '@actions/http-client';
 import path from 'path';
 
 import BaseDistribution from '../base-distribution';
@@ -111,6 +112,13 @@ export default class OfficialBuilds extends BaseDistribution {
       ) {
         core.info(
           `Received HTTP status code ${err.httpStatusCode}. This usually indicates the rate limit has been exceeded`
+        );
+      } else if (
+        err instanceof hc.HttpClientError &&
+        (err.statusCode === 403 || err.statusCode === 429)
+      ) {
+        core.info(
+          `Received HTTP status code ${err.statusCode}. This usually indicates the rate limit has been exceeded`
         );
       } else {
         core.info((err as Error).message);
