@@ -141,13 +141,22 @@ export default abstract class BaseDistribution {
     core.info(
       `Acquiring ${info.resolvedVersion} - ${info.arch} from ${info.downloadUrl}`
     );
+    core.debug(
+      `[DEBUG] downloadNodejs: starting tc.downloadTool for ${info.downloadUrl}`
+    );
     try {
       downloadPath = await tc.downloadTool(
         info.downloadUrl,
         undefined,
         this.nodeInfo.mirrorToken
       );
+      core.debug(
+        `[DEBUG] downloadNodejs: tc.downloadTool completed, downloadPath=${downloadPath}`
+      );
     } catch (err) {
+      core.debug(
+        `[DEBUG] downloadNodejs: tc.downloadTool threw: ${(err as Error).message}`
+      );
       if (
         err instanceof tc.HTTPError &&
         err.httpStatusCode == 404 &&
@@ -161,8 +170,11 @@ export default abstract class BaseDistribution {
 
       throw err;
     }
-
+    core.debug(`[DEBUG] downloadNodejs: starting extractArchive...`);
     const toolPath = await this.extractArchive(downloadPath, info, true);
+    core.debug(
+      `[DEBUG] downloadNodejs: extractArchive returned toolPath=${toolPath}`
+    );
     core.info('Done');
 
     return toolPath;

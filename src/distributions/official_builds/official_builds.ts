@@ -69,30 +69,41 @@ export default class OfficialBuilds extends BaseDistribution {
     let downloadPath = '';
     try {
       core.info(`Attempting to download ${this.nodeInfo.versionSpec}...`);
-
+      core.debug(
+        `[DEBUG] Fetching manifest info for ${this.nodeInfo.versionSpec}, arch=${osArch}`
+      );
       const versionInfo = await this.getInfoFromManifest(
         this.nodeInfo.versionSpec,
         this.nodeInfo.stable,
         osArch,
         manifest
       );
+      core.debug(
+        `[DEBUG] versionInfo resolved: ${versionInfo ? JSON.stringify({resolvedVersion: versionInfo.resolvedVersion, downloadUrl: versionInfo.downloadUrl, arch: versionInfo.arch}) : 'null'}`
+      );
 
       if (versionInfo) {
         core.info(
           `Acquiring ${versionInfo.resolvedVersion} - ${versionInfo.arch} from ${versionInfo.downloadUrl}`
         );
+        core.debug(`[DEBUG] Starting tc.downloadTool from manifest URL...`);
         downloadPath = await tc.downloadTool(
           versionInfo.downloadUrl,
           undefined,
           this.nodeInfo.mirror ? this.nodeInfo.mirrorToken : this.nodeInfo.auth
         );
+        core.debug(
+          `[DEBUG] tc.downloadTool returned downloadPath=${downloadPath}`
+        );
 
         if (downloadPath) {
+          core.debug(`[DEBUG] Starting extractArchive...`);
           toolPath = await this.extractArchive(
             downloadPath,
             versionInfo,
             false
           );
+          core.debug(`[DEBUG] extractArchive returned toolPath=${toolPath}`);
         }
       } else {
         core.info(
@@ -103,6 +114,12 @@ export default class OfficialBuilds extends BaseDistribution {
       }
     } catch (err) {
       // Rate limit?
+      core.info(
+        `[DEBUG] Caught error in manifest download path: ${(err as Error).message}`
+      );
+      core.info(
+        `[DEBUG] Error type: ${err?.constructor?.name}, HTTP status: ${(err as any)?.httpStatusCode}`
+      );
       if (
         err instanceof tc.HTTPError &&
         (err.httpStatusCode === 403 || err.httpStatusCode === 429)
@@ -115,17 +132,27 @@ export default class OfficialBuilds extends BaseDistribution {
       }
       core.debug((err as Error).stack ?? 'empty stack');
       core.info('Falling back to download directly from Node');
+      core.debug(`[DEBUG] After try/catch: toolPath=${toolPath}`);
     }
 
     if (!toolPath) {
+      core.debug(
+        `[DEBUG] toolPath is falsy, calling downloadDirectlyFromNode...`
+      );
       toolPath = await this.downloadDirectlyFromNode();
+      core.debug(
+        `[DEBUG] downloadDirectlyFromNode returned toolPath=${toolPath}`
+      );
     }
 
     if (this.osPlat != 'win32') {
       toolPath = path.join(toolPath, 'bin');
     }
-
+    core.info(`[DEBUG] About to call core.addPath with: ${toolPath}`);
     core.addPath(toolPath);
+    core.info(
+      `[DEBUG] setupNodeJs completed successfully, node should be at: ${toolPath}`
+    );
   }
 
   protected addToolPath(toolPath: string) {
@@ -137,9 +164,21 @@ export default class OfficialBuilds extends BaseDistribution {
   }
 
   protected async downloadDirectlyFromNode() {
+    core.debug(
+      `[DEBUG] downloadDirectlyFromNode: fetching node versions list...`
+    );
     const nodeJsVersions = await this.getNodeJsVersions();
+    core.debug(
+      `[DEBUG] downloadDirectlyFromNode: got ${nodeJsVersions.length} versions`
+    );
     const versions = this.filterVersions(nodeJsVersions);
+    core.debug(
+      `[DEBUG] downloadDirectlyFromNode: filtered to ${versions.length} versions`
+    );
     const evaluatedVersion = this.evaluateVersions(versions);
+    core.debug(
+      `[DEBUG] downloadDirectlyFromNode: evaluatedVersion=${evaluatedVersion}`
+    );
 
     if (!evaluatedVersion) {
       throw new Error(
@@ -148,11 +187,21 @@ export default class OfficialBuilds extends BaseDistribution {
     }
 
     const toolName = this.getNodejsDistInfo(evaluatedVersion);
+    core.debug(
+      `[DEBUG] downloadDirectlyFromNode: toolName=${JSON.stringify(toolName)}`
+    );
 
     try {
+      core.debug(`[DEBUG] downloadDirectlyFromNode: calling downloadNodejs...`);
       const toolPath = await this.downloadNodejs(toolName);
+      core.debug(
+        `[DEBUG] downloadDirectlyFromNode: downloadNodejs returned toolPath=${toolPath}`
+      );
       return toolPath;
     } catch (error) {
+      core.info(
+        `[DEBUG] downloadDirectlyFromNode: caught error: ${(error as Error).message}`
+      );
       if (error instanceof tc.HTTPError && error.httpStatusCode === 404) {
         core.warning(
           `Node version ${this.nodeInfo.versionSpec} for platform ${this.osPlat} and architecture ${this.nodeInfo.arch} was found but failed to download. ` +

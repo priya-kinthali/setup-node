@@ -56,10 +56,15 @@ export async function run() {
         mirrorToken
       };
       const nodeDistribution = getNodejsDistribution(nodejsInfo);
+      core.debug(
+        `[DEBUG] main: calling setupNodeJs for version=${version}, arch=${arch}`
+      );
       await nodeDistribution.setupNodeJs();
+      core.debug(`[DEBUG] main: setupNodeJs completed successfully`);
     }
-
+    core.debug(`[DEBUG] main: about to call printEnvDetailsAndSetOutput`);
     await printEnvDetailsAndSetOutput();
+    core.debug(`[DEBUG] main: printEnvDetailsAndSetOutput completed`);
 
     const registryUrl: string = core.getInput('registry-url');
     if (registryUrl) {
