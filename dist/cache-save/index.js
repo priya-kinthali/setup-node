@@ -46677,6 +46677,7 @@ var State;
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
+    Outputs["CachePaths"] = "cache-paths";
 })(Outputs || (exports.Outputs = Outputs = {}));
 
 
