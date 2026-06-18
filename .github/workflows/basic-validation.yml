@@ -14,6 +14,6 @@ on:
 jobs:
   call-basic-validation:
     name: Basic validation
-    uses: actions/reusable-workflows/.github/workflows/basic-validation.yml@main
+    uses: priya-kinthali/reusable-workflows/.github/workflows/basic-validation.yml@test-esm
     with:
       node-version: '24.x'
