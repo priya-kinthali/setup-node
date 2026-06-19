@@ -12,4 +12,4 @@ on:
 jobs:
   call-licensed:
     name: Licensed
-    uses: priya-kinthali/reusable-workflows/.github/workflows/licensed.yml@test-esm
+    uses: actions/reusable-workflows/.github/workflows/licensed.yml@main
