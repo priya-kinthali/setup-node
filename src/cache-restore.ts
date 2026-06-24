@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 
-import {State} from './constants';
+import {Outputs, State} from './constants';
 import {
   getCacheDirectories,
   getPackageManagerInfo,
@@ -29,6 +29,7 @@ export const restoreCache = async (
     cacheDependencyPath
   );
   core.saveState(State.CachePaths, cachePaths);
+  core.setOutput(Outputs.CachePaths, cachePaths);
   const lockFilePath = cacheDependencyPath
     ? cacheDependencyPath
     : findLockFile(packageManagerInfo);

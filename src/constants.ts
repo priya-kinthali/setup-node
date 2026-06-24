@@ -12,5 +12,6 @@ export enum State {
 }
 
 export enum Outputs {
-  CacheHit = 'cache-hit'
+  CacheHit = 'cache-hit',
+  CachePaths = 'cache-paths'
 }
