@@ -57010,6 +57010,7 @@ const restoreCache = async (packageManager, cacheDependencyPath) => {
     const arch = os_1.default.arch();
     const cachePaths = await (0, cache_utils_1.getCacheDirectories)(packageManagerInfo, cacheDependencyPath);
     core.saveState(constants_1.State.CachePaths, cachePaths);
+    core.setOutput(constants_1.Outputs.CachePaths, cachePaths);
     const lockFilePath = cacheDependencyPath
         ? cacheDependencyPath
         : findLockFile(packageManagerInfo);
@@ -57341,6 +57342,7 @@ var State;
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
+    Outputs["CachePaths"] = "cache-paths";
 })(Outputs || (exports.Outputs = Outputs = {}));
 
 
