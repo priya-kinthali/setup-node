@@ -12,9 +12,13 @@ This action provides the following functionality for GitHub Actions users:
 - Registering problem matchers for error output
 - Configuring authentication for GPR or npm
 
-## Breaking changes in V7
+## What's new in V7
 
-- **Migrated to ESM** to enable support for the latest `@actions/*` package versions.
+- Migrated action internals to ESM for compatibility with latest `@actions/*` packages. No changes to action inputs, outputs, or behavior.
+
+### Breaking change
+
+- The dummy `NODE_AUTH_TOKEN` fallback has been removed, as it could unintentionally affect the generated `.npmrc` with a non-functional token. With this change, if `registry-url` is set without `NODE_AUTH_TOKEN`, legacy Yarn Classic (1.x) and older Node/npm versions may fail, and pnpm may warn. npm Trusted Publishing (OIDC) is not affected, since it does not use `NODE_AUTH_TOKEN`.
 
 ## Breaking changes in V6
 
@@ -30,7 +34,7 @@ This action provides the following functionality for GitHub Actions users:
 - Upgraded action from node20 to node24.
   > Make sure your runner is on version v2.327.1 or later to ensure compatibility with this release. [See Release Notes](https://github.com/actions/runner/releases/tag/v2.327.1)
 
-For more details, see the full release notes on the [releases page](https://github.com/actions/setup-node/releases/v5.0.0)
+For more details, see the full release notes on the [releases page](https://github.com/actions/setup-node/releases)
 
 ## Usage
 
@@ -38,7 +42,7 @@ See [action.yml](action.yml)
 
 <!-- start usage -->
 ```yaml
-- uses: actions/setup-node@v6
+- uses: actions/setup-node@v7
   with:
     # Version Spec of the version to use in SemVer notation.
     # It also admits such aliases as lts/*, latest, nightly and canary builds
@@ -119,8 +123,8 @@ See [action.yml](action.yml)
 
 ```yaml
 steps:
-- uses: actions/checkout@v6
-- uses: actions/setup-node@v6
+- uses: actions/checkout@v7
+- uses: actions/setup-node@v7
   with:
     node-version: 24
     package-manager-cache: false # Disable automatic npm caching if not required
@@ -169,8 +173,8 @@ See the examples of using cache for `yarn`/`pnpm` and `cache-dependency-path` in
 
 ```yaml
 steps:
-- uses: actions/checkout@v6
-- uses: actions/setup-node@v6
+- uses: actions/checkout@v7
+- uses: actions/setup-node@v7
   with:
     node-version: 24
     cache: 'npm'
@@ -182,8 +186,8 @@ steps:
 
 ```yaml
 steps:
-- uses: actions/checkout@v6
-- uses: actions/setup-node@v6
+- uses: actions/checkout@v7
+- uses: actions/setup-node@v7
   with:
     node-version: 24
     cache: 'npm'
@@ -198,8 +202,8 @@ This behavior is controlled by the `package-manager-cache` input, which defaults
 
 ```yaml
 steps:
-- uses: actions/checkout@v6
-- uses: actions/setup-node@v6
+- uses: actions/checkout@v7
+- uses: actions/setup-node@v7
   with:
     package-manager-cache: false
 - run: npm ci
@@ -217,9 +221,9 @@ jobs:
         node: [ 20, 22, 24 ]
     name: Node ${{ matrix.node }} sample
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
           package-manager-cache: false # Disable automatic npm caching if not required
@@ -234,7 +238,7 @@ jobs:
 To get a higher rate limit, you can [generate a personal access token on github.com](https://github.com/settings/tokens/new) and pass it as the `token` input for the action:
 
 ```yaml
-uses: actions/setup-node@v6
+uses: actions/setup-node@v7
 with:
   token: ${{ secrets.GH_DOTCOM_TOKEN }}
   node-version: 24
