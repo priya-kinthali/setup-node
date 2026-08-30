@@ -1,31 +1,32 @@
 // This is a reusable configuration file copied from https://github.com/actions/reusable-workflows/tree/main/reusable-configurations. Please don't make changes to this file as it's the subject of an automatic update.
-import js from '@eslint/js';
-import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 import jest from 'eslint-plugin-jest';
-import n from 'eslint-plugin-n';
 import prettier from 'eslint-config-prettier';
-import globals from 'globals';
 
 export default [
   {
-    ignores: ['**/*', '!src/**', '!__tests__/**']
+    ignores: [
+      '**/node_modules/**',
+      '**/lib/**',
+      '**/dist/**',
+      'docs/**',
+      '*.js',
+      '*.mjs',
+      '*.cjs'
+    ]
   },
-  js.configs.recommended,
   {
     files: ['**/*.ts'],
     languageOptions: {
       parser: tsParser,
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      globals: {
-        ...globals.node,
-        ...globals.es2015
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module'
       }
     },
     plugins: {
-      '@typescript-eslint': tsPlugin,
-      n
+      '@typescript-eslint': tsPlugin
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
@@ -40,7 +41,7 @@ export default [
         }
       ],
       'no-console': 'error',
-      yoda: 'error',
+      'yoda': 'error',
       'prefer-const': [
         'error',
         {
@@ -49,19 +50,21 @@ export default [
       ],
       'no-control-regex': 'off',
       'no-constant-condition': ['error', {checkLoops: false}],
-      'no-undef': 'off',
-      'no-useless-assignment': 'off',
-      'n/no-extraneous-import': 'error'
+      '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          caughtErrors: 'none'
+        }
+      ]
     }
   },
   {
     files: ['**/*{test,spec}.ts'],
-    plugins: {jest},
-    languageOptions: {
-      globals: {
-        ...globals.jest
-      }
-    },
+    ...jest.configs['flat/recommended'],
     rules: {
       ...jest.configs['flat/recommended'].rules,
       '@typescript-eslint/no-unused-vars': 'off',
